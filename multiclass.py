@@ -60,82 +60,16 @@ train_data = pd.read_csv(
 test_data = pd.read_csv(
     "C:\\Users\\Dora\\Desktop\\AnomalyDet\\test.csv", header=None, names=col_names)
 
-[col for col in train_data.columns if train_data[col].isnull().sum() > 0]
-train_data.nunique()
-
-[col for col in test_data.columns if test_data[col].isnull().sum() > 0]
-test_data.nunique()
-
-#all_data = pd.concat([train_data, test_data])
-
-
-# all_data.shape
-# all_data.head(5)
-# print(train_data.head(24))
-test_data.nunique()
-
-# print(set(list(all_data['att_label'])))
 
 train_data.head()
 train_data.describe()
-
 # check types
 train_data.dtypes
-
-print('Label distribution Training set:')
-print(train_data['att_label'].value_counts())
-print()
-print('Label distribution Test set:')
-print(test_data['att_label'].value_counts())
-
 train_data.info()
 train_data.nunique()
 
 test_data.info()
 test_data.nunique()
-
-########################################################
-# identify categorical features
-print('Training set:')
-
-for col_name in train_data.columns:
-    if train_data[col_name].dtypes == 'object':
-        categ_un = len(train_data[col_name].unique())
-        print("Feature '{col_name}' has {categ_un} categories".format(
-            col_name=col_name, categ_un=categ_un))
-
-########################################################
-
-########################################################
-# identify categorical features
-print('Test set:')
-
-for col_name in test_data.columns:
-    if test_data[col_name].dtypes == 'object':
-        categ_un = len(test_data[col_name].unique())
-        print("Feature '{col_name}' has {categ_un} categories".format(
-            col_name=col_name, categ_un=categ_un))
-
-########################################################
-
-
-# normal=1, attack=0
-train_attack = train_data.att_label.map(lambda a: 0 if a == 'normal' else 1)
-test_attack = test_data.att_label.map(lambda a: 0 if a == 'normal' else 1)
-
-#data_with_attack = df.join(is_attack, rsuffix='_flag')
-train_data['att_flag'] = train_attack
-test_data['att_flag'] = test_attack
-
-# textual attack flags
-train_att_text_label = train_data.att_label.map(
-    lambda a: 'normal' if a == 'normal' else 'attack')
-test_att_text_label = test_data.att_label.map(
-    lambda a: 'normal' if a == 'normal' else 'attack')
-
-train_data['text_label'] = train_att_text_label
-test_data['text_label'] = test_att_text_label
-
 
 # attack categories - attack classifications
 dos_attacks = ['apache2', 'back', 'land', 'neptune', 'mailbomb', 'pod',
@@ -154,49 +88,24 @@ r2l_attacks = ['ftp_write', 'guess_passwd', 'imap', 'multihop', 'named', 'phf',
                'sendmail', 'snmpgetattack', 'snmpguess', 'spy', 'warezclient', 'warezmaster', 'xlock', 'xsnoop', 'worm']
 
 
-# we will use these for plotting below
-attack_labels = ['normal', 'dos', 'probe', 'u2r', 'r2l']
 # helper function to pass to data frame mapping
 
-
 def map_attack(attack):
     if attack in dos_attacks:
-        # dos_attacks map to 1
+
         attack_type = 'dos'
     elif attack in probe_attacks:
-        # probe_attacks map to 2
+
         attack_type = 'probe'
     elif attack in u2r_attacks:
-        # u2r attacks map to 3
+
         attack_type = 'u2r'
     elif attack in r2l_attacks:
-        # r2l attacks map to 4
+
         attack_type = 'r2l'
     else:
-        # normal maps to 0
+
         attack_type = 'normal'
-
-    return attack_type
-
-############################################################################################
-
-
-def map_attack(attack):
-    if attack in dos_attacks:
-        # dos_attacks map to 1
-        attack_type = 1
-    elif attack in probe_attacks:
-        # probe_attacks map to 2
-        attack_type = 2
-    elif attack in u2r_attacks:
-        # u2r attacks map to 3
-        attack_type = 3
-    elif attack in r2l_attacks:
-        # r2l attacks map to 4
-        attack_type = 4
-    else:
-        # normal maps to 0
-        attack_type = 0
 
     return attack_type
 
@@ -207,35 +116,14 @@ train_data['att_cat'] = att_cat
 
 test_attack_map = test_data.att_label.apply(map_attack)
 test_data['att_cat'] = test_attack_map
+
 # view the result
 train_data.head()
 test_data.head()
 
-# view the result
-train_data.head(24)
-train_data.dtypes
-train_data.info()
-train_data.describe()
-train_data.isnull().sum()
-train_data.nunique()
-train_data.shape
-
-test_data.head(24)
-test_data.dtypes
-test_data.info()
-test_data.describe()
-test_data.isnull().sum()
-test_data.nunique()
 
 ###############################################################
 # DATA VISUALIZATION
-###############################################################
-
-# ovo nista
-sns.scatterplot(x="protocol_type", y="hot",
-                hue='is_host_login', data=train_data)
-plt.show()
-################
 
 
 # napadi po klasama za oba seta
@@ -284,18 +172,6 @@ sns.catplot(x="att_cat", y="count", hue="protocol_type",
 plt.legend(fontsize='x-large', title_fontsize='40')
 plt.title("Protocol_type for classes")
 plt.show()
-
-
-print(train_data[["att_cat", "flag"]].value_counts())
-
-train_data[["att_cat", "flag"]].groupby(["att_cat", "flag"]).size()
-test_data[["att_cat", "flag"]].groupby(["att_cat", "flag"]).size()
-
-pd.set_option('display.max_rows', None)  # or 1000
-train_data[["att_cat", "service"]].groupby(
-    ["att_cat", "service"]).size().sort_values(ascending=False)
-test_data[["att_cat", "service"]].groupby(
-    ["att_cat", "service"]).size().sort_values(ascending=False)
 
 
 ###############################################################
@@ -492,64 +368,8 @@ plt.ylabel("Count")
 plt.show()
 
 
-# Count -->	Number of connections to the same destination host as the current connection in the past two seconds
-sns.catplot(x="protocol_type", y="count", hue="text_label", data=train_data)
-plt.title("Number of connections to the same \n destination host as the current \n connection in the past two seconds")
-plt.show()
-
-sns.catplot(x="duration", y="count", hue="text_label", data=train_data)
-plt.title("Number of connections to the same \n destination host as the current \n connection in the past two seconds")
-plt.show()
-
-# analiza po featureu
-type_att = train_data['root_shell'].value_counts()
-print(type_att)
-
-
-##############################################################
-# correlation
-corr = train_data.corr().abs()
-sns.heatmap(corr)
-plt.show()
-
-columns = np.full((corr.shape[0],), True, dtype=object)
-for i in range(corr.shape[0]):
-    for j in range(i+1, corr.shape[0]):
-        if corr.iloc[i, j] >= 0.9:
-            if columns[j]:
-                columns[j] = False
-selected_columns = train_data.columns[columns]
-print(selected_columns)
-#train_data = train_data[selected_columns]
-
-# select least correlated
-corr_matrix = train_data.corr().abs().sort_values('att_label')
-
-leastCorrelated = corr_matrix['att_label'].nsmallest(10)
-leastCorrelated = list(leastCorrelated.index)
-
-
-###########################################
-
-cor = train_data.corr().abs()
-sns.heatmap(cor, xtickatt_label=True, ytickatt_label=True)
-plt.show()
-print(cor)
-
-# Correlation with output variable
-cor_target = abs(cor["att_flag"])
-# Selecting highly correlated features
-relevant_features = cor_target[cor_target > 0.5]
-relevant_features
-
-
-print(train_data[["src_bytes", "dst_bytes"]].corr())
-print(train_data[["src_bytes", "land"]].corr())
-
-
 #################################################################################################
-#########   P   r  e  p  r  o  c  e  s  s  ######################################################
-#################################################################################################
+#  P   r  e  p  r  o  c  e  s  s
 
 
 random_state = 42
@@ -558,38 +378,27 @@ pr_train = train_data.copy()     # copy of our train set --> preproccessed train
 pr_test = test_data.copy()       # copy of our test set --> preproccessed test set
 
 
-#################################################################################################
-
-
 pr_train.groupby(['num_outbound_cmds']).size()
 pr_test.groupby(['num_outbound_cmds']).size()
 
 # samo 0 vrijednost pa nam ne znaci nista --> drop
-
 pr_train.drop('num_outbound_cmds', axis=1, inplace=True)
 pr_test.drop('num_outbound_cmds', axis=1, inplace=True)
 
 
 # ne trebaju nam vise
-pr_train.drop('text_label', axis=1, inplace=True)
-pr_test.drop('text_label', axis=1, inplace=True)
-
-# ne trebaju nam vise
 pr_train.drop('att_label', axis=1, inplace=True)
 pr_test.drop('att_label', axis=1, inplace=True)
 
-########################################################
 pr_train.groupby(['su_attempted']).size()
 pr_test.groupby(['su_attempted']).size()
 
 # su_attempted=2 -> su_attempted=0
-
 pr_train['su_attempted'].replace(2, 0, inplace=True)
 pr_test['su_attempted'].replace(2, 0, inplace=True)
 pr_train.groupby(['su_attempted']).size()
 pr_test.groupby(['su_attempted']).size()
 
-########################################################
 
 ########################################################
 # normalization
@@ -607,77 +416,12 @@ pr_test[norm_cols] = pd.DataFrame(
     mms.fit_transform(pr_test[norm_cols]), columns=norm_cols
 )
 
-###
-standard_scaler = StandardScaler().fit(pr_train[norm_cols])
-
-pr_train[norm_cols] = \
-    standard_scaler.transform(pr_train[norm_cols])
-
-pr_test[norm_cols] = \
-    standard_scaler.transform(pr_test[norm_cols])
-###
-scaler = RobustScaler()
-pr_train[norm_cols] = pd.DataFrame(
-    scaler.fit_transform(pr_train[norm_cols]), columns=norm_cols
-)
-pr_test[norm_cols] = pd.DataFrame(
-    scaler.fit_transform(pr_test[norm_cols]), columns=norm_cols
-)
-####
-
-for col in norm_cols:
-    pr_train[col] = np.log(pr_train[col]+1e-6)
-    pr_test[col] = np.log(pr_test[col]+1e-6)
 
 plot_hist(pr_train, norm_cols, 'Distributions in Processed Training Set')
 plot_hist(pr_test, norm_cols, 'Distributions in Processed Testing Set')
 
 pr_train.head()
 pr_test.head(15)
-
-########################################################
-pr_train.groupby(['att_cat']).size()
-pr_test.groupby(['att_cat']).size()
-
-# skalirati kategorije napada:
-# TRAIN
-# 0    67352
-# 1    45927
-# 2    11656
-# 3       43
-# 4      995
-
-
-# TEST
-# 0    9713
-# 1    7458
-# 2    2421
-# 3     198
-# 4    2754
-
-
-########################################################
-# identify categorical features
-print('Training set:')
-
-for col_name in pr_train.columns:
-    if pr_train[col_name].dtypes == 'object':
-        categ_un = len(pr_train[col_name].unique())
-        print("Feature '{col_name}' has {categ_un} categories".format(
-            col_name=col_name, categ_un=categ_un))
-
-print(pr_train['service'].value_counts().sort_values(ascending=False).head())
-
-
-print('Test set:')
-
-for col_name in pr_train.columns:
-    if pr_test[col_name].dtypes == 'object':
-        categ_un = len(pr_test[col_name].unique())
-        print("Feature '{col_name}' has {categ_un} categories".format(
-            col_name=col_name, categ_un=categ_un))
-
-print(pr_test['service'].value_counts().sort_values(ascending=False).head())
 
 
 ########################################################
@@ -690,6 +434,14 @@ categorical_columns = ['protocol_type', 'service', 'flag', 'att_cat']
 train_categorical_values = pr_train[categorical_columns]
 test_categorical_values = pr_test[categorical_columns]
 train_categorical_values.head()
+
+train_cat_val_enc = train_categorical_values.apply(
+    LabelEncoder().fit_transform)
+print(train_cat_val_enc.head())
+
+# test set
+test_cat_val_enc = test_categorical_values.apply(LabelEncoder().fit_transform)
+print(test_cat_val_enc.head())
 
 
 # protocol_un type
@@ -723,14 +475,6 @@ service_str_test = [string_serv + x for x in service_un_test]
 
 test_col_name_dummy = protocol_str + \
     service_str_test + flag_str+categ_str
-
-
-train_cat_val_enc = train_categorical_values.apply(
-    LabelEncoder().fit_transform)
-print(train_cat_val_enc.head())
-# test set
-test_cat_val_enc = test_categorical_values.apply(LabelEncoder().fit_transform)
-print(test_cat_val_enc.head())
 
 
 ########################################################
@@ -789,35 +533,11 @@ print(new_train.shape)
 print(new_test.shape)
 
 new_train.head(15)
-
 new_test.head(15)
 
 
 ########################################################
-
 # M O D E L
-
-
-new_train.drop('diff_level', axis=1, inplace=True)
-new_test.drop('diff_level', axis=1, inplace=True)
-
-new_train.drop('text_label', axis=1, inplace=True)
-new_test.drop('text_label', axis=1, inplace=True)
-
-new_train.drop('att_cat', axis=1, inplace=True)
-new_test.drop('att_cat', axis=1, inplace=True)
-
-
-new_train.drop('att_flag', axis=1, inplace=True)
-new_test.drop('att_flag', axis=1, inplace=True)
-
-new_train.drop('att_label', axis=1, inplace=True)
-new_test.drop('att_label', axis=1, inplace=True)
-
-
-###############################################################
-# M O D E L I
-###############################################################
 
 
 # logistic regression multiclass
@@ -865,8 +585,6 @@ y_preds = lm.predict(X_t)
 f1_score(y_t, y_preds, average='macro')
 
 ###############################################################
-###############################################################
-###############################################################
 
 # neural network multiclass
 # multi-class classification with Keras
@@ -875,25 +593,12 @@ X = new_train.drop(
     ['cat_dos', 'cat_normal', 'cat_probe', 'cat_r2l', 'cat_u2r'], axis=1)
 
 y = new_train[['cat_dos', 'cat_normal',
-                     'cat_probe', 'cat_r2l', 'cat_u2r']]
+               'cat_probe', 'cat_r2l', 'cat_u2r']]
 
 X_t = new_test.drop(
     ['cat_dos', 'cat_normal', 'cat_probe', 'cat_r2l', 'cat_u2r'], axis=1)
 y_t = new_test[['cat_dos', 'cat_normal', 'cat_probe', 'cat_r2l', 'cat_u2r']]
 
-
-######### ###              ##################
-model = Sequential()
-# input shape is (features,)
-
-model.add(Dense(32, input_shape=(X.shape[1],), activation='relu'))
-model.add(Dense(5, activation='softmax'))
-model.summary()
-
-
-
-
-###################
 
 model = Sequential()
 # input shape is (features,)
@@ -906,10 +611,9 @@ model.add(keras.layers.Dropout(0.3))
 model.add(Dense(5, activation='softmax'))
 model.summary()
 
-#optimizer=Adam(learning_rate=0.001, beta_1=0.99, beta_2=0.999,
-              #amsgrad=True),
 
-model.compile(optimizer=Adam(learning_rate=0.01, beta_1=0.99, beta_2=0.999,amsgrad=True), loss='categorical_crossentropy', metrics=['accuracy'])
+model.compile(optimizer=Adam(learning_rate=0.01, beta_1=0.99, beta_2=0.999,
+              amsgrad=True), loss='categorical_crossentropy', metrics=['accuracy'])
 
 
 # This callback will stop the training when there is no improvement in
@@ -917,13 +621,11 @@ model.compile(optimizer=Adam(learning_rate=0.01, beta_1=0.99, beta_2=0.999,amsgr
 es = keras.callbacks.EarlyStopping(monitor='val_loss',
                                    mode='min',
                                    patience=3,
-                                   restore_best_weights=True) 
+                                   restore_best_weights=True)
 
 
-history = model.fit(X, y, callbacks=[es], epochs=15, batch_size=60, shuffle=True, validation_split=0.15, verbose=1)
-
-# hyperparametar tuning
-# mijenjas dense ovo di je 16 i pokusavas fit na validation setu !!!
+history = model.fit(X, y, callbacks=[
+                    es], epochs=15, batch_size=60, shuffle=True, validation_split=0.15, verbose=1)
 
 
 # evaluate the model
@@ -932,9 +634,8 @@ _, test_acc = model.evaluate(X_t, y_t, verbose=0)
 print('Train: %.3f, Test: %.3f' % (train_acc, test_acc))
 
 
- # important - otherwise you just return the last weigths...
-
 history_dict = history.history
+
 # learning curve
 # accuracy
 acc = history_dict['accuracy']
@@ -960,174 +661,3 @@ plt.ylabel('Loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'], loc='upper left')
 plt.show()
-
-
-fig = plt.figure()
-fig.suptitle("Adam, lr=0.0005, two hidden layers")
-
-ax = fig.add_subplot(1, 2, 1)
-ax.set_title('Cost')
-ax.plot(history.history['loss'], label='Training')
-ax.plot(history.history['val_loss'], label='Validation')
-ax.legend()
-
-ax = fig.add_subplot(1, 2, 2)
-ax.set_title('Accuracy')
-ax.plot(history.history['accuracy'], label='Training')
-ax.plot(history.history['val_accuracy'], label='Validation')
-ax.legend()
-
-fig.show()
-
-###############################################################
-###############################################################
-###############################################################
-y = new_train["att_cat"]
-x = new_train.drop("att_cat", axis=1)
-
-x_t = new_test.drop("att_cat", axis=1)
-y_t = new_test["att_cat"]
-
-seed_random = 42
-
-label_encoder = LabelEncoder()
-label_encoder = label_encoder.fit(y)
-
-x_train, x_val, y_train, y_val = train_test_split(
-    x, y, test_size=0.3, random_state=seed_random)
-
-
-input_size = len(x_t.columns)
-
-deep_model = Sequential()
-deep_model.add(Dense(256, input_dim=input_size, activation='softplus'))
-# deep_model.add(Dropout(0.2))
-deep_model.add(Dense(128, activation='relu'))
-deep_model.add(Dense(64, activation='relu'))
-deep_model.add(Dense(32, activation='relu'))
-#deep_model.add(Dense(18, activation='softplus'))
-deep_model.add(Dense(5, activation='softmax'))
-
-deep_model.compile(loss='categorical_crossentropy',
-                   optimizer=Adam(learning_rate=0.001, beta_1=0.9,
-                                  beta_2=0.999, amsgrad=True),
-                   metrics=['accuracy'])
-
-y_train_econded = label_encoder.transform(y_train)
-y_val_econded = label_encoder.transform(y_val)
-y_test_econded = label_encoder.transform(y_t)
-
-y_train_dummy = np_utils.to_categorical(y_train_econded)
-y_val_dummy = np_utils.to_categorical(y_val_econded)
-y_test_dummy = np_utils.to_categorical(y_test_econded)
-
-deep_model.fit(x_train, y_train_dummy,
-               epochs=10,
-               batch_size=2500,
-               validation_data=(x_val, y_val_dummy))
-
-
-###################################################################
-#####################################################################
-
-df_train = new_train.copy()     # copy of our train set --> preproccessed train set
-df_test = new_test.copy()
-
-X = df_train.drop("att_cat", axis=1)
-Y_train = df_train["att_cat"]
-
-sc = MinMaxScaler()
-X_train = sc.fit_transform(X)
-
-X_t = df_test.drop("att_cat", axis=1)
-Y_test = df_test["att_cat"]
-
-sc = MinMaxScaler()
-X_test = sc.fit_transform(X_t)
-
-
-def create_ann():
-    model = Sequential()
-
-    # here 30 is output dimension
-    model.add(Dense(64, input_dim=(
-        X.shape[1]), activation='relu', kernel_initializer='random_uniform'))
-
-    # in next layer we do not specify the input_dim as the model is sequential so output of previous layer is input to next layer
-    model.add(Dense(8, activation='sigmoid',
-              kernel_initializer='random_uniform'))
-
-    # 5 classes-normal,dos,probe,r2l,u2r
-    model.add(Dense(5, activation='softmax'))
-
-    # loss is categorical_crossentropy which specifies that we have multiple classes
-
-    model.compile(loss='categorical_crossentropy',
-                  optimizer='adam', metrics=['accuracy'])
-
-    return model
-
-
-# Since,the dataset is very big and we cannot fit complete data at once so we use batch size.
-# This divides our data into batches each of size equal to batch_size.
-# Now only this number of samples will be loaded into memory and processed.
-# Once we are done with one batch it is flushed from memory and the next batch will be processed.
-model7 = KerasClassifier(build_fn=create_ann, epochs=10,
-                         batch_size=64)  # 100 -> 10
-start = time.time()
-model7.fit(X_train, Y_train.values.ravel())
-end = time.time()
-print('Training time')
-print((end-start))
-
-
-start_time = time.time()
-Y_test_pred7 = model7.predict(X_test)
-end_time = time.time()
-print("Testing time: ", end_time-start_time)
-
-start_time = time.time()
-Y_train_pred7 = model7.predict(X_train)
-end_time = time.time()
-accuracy_score(Y_train, Y_train_pred7)
-
-
-Y_train_pred7 = model7.predict(X_train)
-accuracy_score(Y_test, Y_test_pred7)
-
-###################################################################
-#####################################################################
-
-df_train = new_train.copy()     # copy of our train set --> preproccessed train set
-df_test = new_test.copy()
-
-
-model5 = LogisticRegression(max_iter=1200000)
-model5 = linear_model.LogisticRegression(
-    multi_class='ovr', class_weight='balanced', solver='saga', penalty='l2', max_iter=1000)
-
-X = df_train.drop("att_cat", axis=1)
-Y_train = df_train["att_cat"]
-
-sc = MinMaxScaler()
-X_train = sc.fit_transform(X)
-
-X_t = df_test.drop("att_cat", axis=1)
-Y_test = df_test["att_cat"]
-
-sc = MinMaxScaler()
-X_test = sc.fit_transform(X_t)
-
-print(X_train.shape, X_test.shape)
-print(Y_train.shape, Y_test.shape)
-
-
-model5.fit(X_train, Y_train.ravel())
-
-Y_test_pred5 = model5.predict(X_test)
-
-print("Train score is:", model5.score(X_train, Y_train))
-print("Test score is:", model5.score(X_test, Y_test))
-
-
-print(metrics.classification_report(Y_test, model5.predict(X_test)))
