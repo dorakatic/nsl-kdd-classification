@@ -465,7 +465,8 @@ y_t = new_test[['cat_dos', 'cat_normal', 'cat_probe', 'cat_r2l', 'cat_u2r']]
 model = Sequential()
 # input shape is (features,)
 
-model.add(Dense(32, input_shape=(X.shape[1],), bias_regularizer=l2(0.001), activation='sigmoid'))
+model.add(Dense(32, input_shape=(X.shape[1],), kernel_regularizer=l2(
+    0.001), bias_regularizer=l2(0.001), activation='sigmoid'))
 model.add(keras.layers.Dropout(0.3))
 model.add(Dense(16, activation='sigmoid'))
 model.add(keras.layers.Dropout(0.3))
@@ -473,7 +474,7 @@ model.add(Dense(5, activation='softmax'))
 model.summary()
 
 
-model.compile(optimizer=Adam(learning_rate=0.001, beta_1=0.99, beta_2=0.999,
+model.compile(optimizer=Adam(learning_rate=0.01, beta_1=0.99, beta_2=0.999,
               amsgrad=True), loss='categorical_crossentropy', metrics=['accuracy'])
 
 
